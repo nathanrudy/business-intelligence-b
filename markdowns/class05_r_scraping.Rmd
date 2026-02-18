@@ -1,0 +1,54 @@
+---
+title: 'Class 05: Scraping Webpages'
+author: "Nathan Rudy"
+date: "2026-02-16"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_download: true
+    code_folding: show
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Intro to 'robotstxt'
+
+From the class activity, let us look at example #2, the [Indeed Jobs Webpage](https://www.indeed.com/jobs/)
+
+
+
+```{r indeed}
+robotstxt::paths_allowed(
+  paths  = "/jobs/", 
+  domain = "indeed.com", 
+  bot    = "*"
+)
+```
+
+Given that this returned `TRUE`, it means that we are allowed to scrape this webpage, which is a directory from the website. If it returns `FLASE`, we should stop, and not scrape it.
+
+
+```{r bls_scrapig}
+# Step 0: Make sure we can scrape the data from the webpage
+# Returned true, so we can scrape this!
+robotstxt::paths_allowed(
+  paths = "/emp/",
+  domain = "https://www.bls.gov"
+)
+
+# Step 1
+resp <- httr2::request(
+  "https://www.bls.gov/emp/tables/fastest-growing-occupations.htm"
+  ) |>
+  httr2::req_user_agent("An ISA 401 Bot from Miami University") |>
+  httr2::req_perform()
+
+bls_webpage <- resp |> httr2::resp_body_raw() |> rvest::read_html()
+
+bls_webpage
+```

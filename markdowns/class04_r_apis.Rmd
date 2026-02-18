@@ -1,0 +1,102 @@
+---
+title: "Class 04: Intro to APIs"
+author: "Nathan Rudy"
+date: "2026-02-11"
+output: 
+  html_document:
+    toc: True
+    toc_float: True
+    number_sections: True
+    code_download: True
+    code_folding: show
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Getting data from USAJOBS API
+
+```{r our_request}
+# var request = require('request');  
+#               
+# var host = 'data.usajobs.gov';  
+# var userAgent = 'your@email.address';  
+# var authKey = 'YourAPIKey';    
+#             
+# request({      
+#     url: 'https://data.usajobs.gov/api/search',      
+#     method: 'GET',      
+#     headers: {          
+#         "Host": host,          
+#         "User-Agent": userAgent,          
+#         "Authorization-Key": authKey      
+#     }  
+# }, function(error, response, body) {      
+#     var data = JSON.parse(body);  
+# });
+
+host = 'data.usajobs.gov'
+user_agent = 'rudyna@miamioh.edu'
+auth_key = Sys.getenv("USAJOBS_API_KEY")
+
+my_req = httr2::request("https://data.usajobs.gov/api/search") |>
+  httr2::req_headers(Host = host, 
+                     `User-Agent` = user_agent, 
+                     `Authorization-Key` = auth_key
+) |>
+httr2::req_url_query(
+  # JobCategoryCode=2210&Keyword=Software Development
+  JobCategoryCode=2210,
+  Keyword="Data Analyst",
+  ResultsPerPage=500
+  
+)
+
+#executing the request to get a response back
+
+response = httr2::req_perform(my_req)
+
+usajobs_data = response |>
+  httr2::resp_body_string() |>
+  jsonlite::fromJSON(flatten = T)
+
+#by inspecting the usajobs_Data (global environment, clicked on the blue circle w/ triangle); alternativley, you could have done:
+dplyr::glimpse(usajobs_data)
+
+
+#left hand side is the name of the header input per the API documentation
+#NOTE: this is case sensitive
+#the names on the left hand cant be changed, so we put them in back ticks, ie. `User-Agent`
+
+#the right hand side is the name of the object in R
+
+usajobs_df = usajobs_data$SearchResult$SearchResultItems
+
+usajobs_data$SearchResult$SearchResultCountAll
+
+
+usajobs_df |>
+  tidyr::unnest(
+    cols = c(
+      "MatchedObjectDescriptor.PositionLocation",
+      "MatchedObjectDescriptor.JobCategory",
+      "MatchedObjectDescriptor.PositionSchedule"
+      ),
+    names_sep = '.'
+  ) -> 
+  usajobs_df_clean
+
+
+
+
+
+usajobs_df_clean |>
+  #returns the distinct items for the first column
+  # needed this given that one job had two rows
+  # row 33 had to be split into row 33 and row 34
+  dplyr::distinct(MatchedObjectId,
+                  MatchedObjectDescriptor.OrganizationName) |>
+  dplyr::count(MatchedObjectDescriptor.OrganizationName)
+```

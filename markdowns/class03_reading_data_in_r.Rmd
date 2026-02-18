@@ -1,0 +1,86 @@
+---
+title: 'Class 03: Reading Data in R'
+author: "Nathan Rudy"
+date: "2026-02-04"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+    code_download: true
+    code_folding: show
+  
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Reading Data from CSVs
+
+## Locally: From my PC
+
+In R, there and some differences from how running code and rMarkdown behave in terms of how they consider paths for files.
+
+ - **R Markdown:** The relative path is based on the location of the rMarkdown file. **This is true for when you know the file**
+ - **Run Code Line-by-Line:** The path is based on the project directory (assuming you are working in a project).
+ 
+To alleviate any issues, when we are working from an RMarkdown, we will also set the working directory to the markdown file location/folder.
+
+```{r local_read}
+df = readr::read_csv("C:/Users/nrudy/OneDrive/Desktop/isa401b/US000.csv")
+```
+
+## Downloading from FRED
+
+```{r fred}
+unrate_read_dot_csv = readr::read_csv("https://fred.stlouisfed.org/graph/fredgraph.csv?bgcolor=%23ebf3fb&chart_type=line&drp=0&fo=open%20sans&graph_bgcolor=%23ffffff&height=450&mode=fred&recession_bars=on&txtcolor=%23444444&ts=12&tts=12&width=1140&nt=0&thu=0&trc=0&show_legend=yes&show_axis_titles=yes&show_tooltip=yes&id=UNRATE&scale=left&cosd=1948-01-01&coed=2025-12-01&line_color=%230073e6&link_values=false&line_style=solid&mark_type=none&mw=3&lw=3&ost=-99999&oet=99999&mma=0&fml=a&fq=Monthly&fam=avg&fgst=lin&fgsnd=2020-02-01&line_index=1&transformation=lin&vintage_date=2026-02-04&revision_date=2026-02-04&nd=1948-01-01")
+
+dplyr::glimpse(unrate_read_dot_csv)
+```
+
+
+## From Github
+
+```{r super_bowl}
+super_bowl = readr::read_csv("C:/Users/nrudy/OneDrive/Desktop/isa401b/super_bowl.csv")
+```
+
+
+```{r unemployment rate readxl}
+unemp <- readr::read_csv("../UNRATE.csv")
+
+summary(unemp)
+```
+
+
+
+# JSON Data
+
+# install.packages("jsonlite")
+
+We are using the **jsonlite** package to read the JSON data. 
+
+```{r cincy_jobs}
+cincy_jobs <- jsonlite::fromJSON(txt='https://www.themuse.com/api/public/jobs?page=1&location=Cincinnati%2C%20OH',
+ flatten = T
+)
+
+names(cincy_jobs)
+
+# to pull the results data.fram (by viewing the list in the global env), we can either use [['results']] or [[7]] $results
+
+cincy_jobs_df <- cincy_jobs[['results']]
+
+cincy_jobs_df
+
+dplyr::glimpse(cincy_jobs_df)
+
+#optional you can also go 1 by 1 and change list columns to single columns
+
+
+cincy_jobs_df2 <- cincy_jobs_df |>
+  tidyr::unnest(
+    cols = c('locations'), names_repair = "unique"
+)
+```

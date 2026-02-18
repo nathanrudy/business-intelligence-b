@@ -1,0 +1,84 @@
+---
+title: 'Class 02: R Intro'
+author: "Nathan Rudy"
+date: "2026-02-02"
+output: 
+  html_document:
+    toc: TRUE
+    toc_float: TRUE
+    number_sections: TRUE
+    theme: simplex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Assignment
+
+R has three assignment operators:
+
+- `<-`  
+- `=`  
+- `->`  
+
+```{r assignments}
+x1 <- 5
+5 -> x2
+
+cat("The value of x1 is:", x1)
+```
+## Vector Language, Sample Output
+
+```{r vector practice}
+x_vec <- rnorm(n = 10, mean = 0, sd = 1) # generating std normal dist
+x_vec > 0 # finding which elements of x are larger than 0
+
+sum(x_vec > 0) # sum the number of elements where x is greater than 0
+```
+
+## Atomic Vectors
+
+Atomic vectors are 1 dimensional data structures, where all values in them have to have the same data type. For example, if we do the following:
+
+```{r atomic, results='hold'}
+mixed_vec = c('ISA', 401)
+
+mixed_num = c(401L, 3.14)
+
+print(typeof(mixed_vec))
+print(typeof(mixed_num))
+```
+
+## Lists
+
+Subsetting a list is one of the most common sources of errors
+
+```{r making list, results = 'hold'}
+lst <- list( # list constructor/creator
+  1:3, # atomic double/numeric vector  of length = 3
+  "a", # atomic character vector of length = 1 (aka scalar)
+  c(TRUE, FALSE, TRUE), # atomic logical vector of length = 3
+  c(2.3, 5.9) # atomic double/numeric vector of length =3
+)
+
+lst
+
+from_list_to_sublist2 <- lst[2]
+
+from_list_to_underlying_structure <- lst[[2]]
+
+from_list_to_sublist2
+
+from_list_to_underlying_structure
+```
+
+```{r showing the print out of what each type of data is}
+str(lst)
+```
+
+```{r}
+my_list1 <- list(name = "Alice", age = 30, scores = c(85, 90, 78))
+
+my_list1[3]
+```
